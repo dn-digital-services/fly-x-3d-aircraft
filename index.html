@@ -2,16 +2,33 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
 
 <title>FLY X 3D Aircraft</title>
 
+<!-- IMPORTANT FIX:
+     OrbitControls ke "three" import ko resolve karta hai -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+
 <style>
+
 *{
     box-sizing:border-box;
 }
 
-html,body{
+html,
+body{
     margin:0;
     width:100%;
     height:100%;
@@ -39,15 +56,21 @@ canvas{
     left:0;
     width:100%;
     text-align:center;
+
     color:#ffffff;
+
     font-size:38px;
     font-weight:800;
+
     letter-spacing:10px;
+
     z-index:10;
     pointer-events:none;
+
     text-shadow:
-        0 0 8px rgba(80,170,255,.8),
-        0 0 25px rgba(0,120,255,.6);
+        0 0 8px rgba(80,170,255,.9),
+        0 0 25px rgba(0,120,255,.7),
+        0 0 45px rgba(0,100,255,.35);
 }
 
 #hint{
@@ -55,39 +78,63 @@ canvas{
     bottom:28px;
     left:0;
     width:100%;
+
     text-align:center;
+
     color:#8fc7f5;
+
     font-size:14px;
     letter-spacing:.3px;
+
     z-index:10;
     pointer-events:none;
+
     text-shadow:0 0 8px #006cff;
 }
 
 #error{
     display:none;
+
     position:fixed;
+
     left:20px;
     right:20px;
     top:100px;
+
     padding:15px;
+
     border-radius:12px;
+
     background:#250d12;
+
     color:#ffb5b5;
-    z-index:20;
+
+    z-index:30;
+
     text-align:center;
+
     font-size:13px;
 }
+
 </style>
 </head>
 
 <body>
 
 <div id="title">FLY X</div>
-<div id="hint">DRAG TO ROTATE • PINCH TO ZOOM</div>
+
+<div id="hint">
+DRAG TO ROTATE • PINCH TO ZOOM
+</div>
+
 <div id="error"></div>
 
+
 <script type="module">
+
+/* =========================================================
+   THREE.JS
+========================================================= */
 
 import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
@@ -97,29 +144,48 @@ import { OrbitControls } from
 
 
 /* =========================================================
+   ERROR BOX
+========================================================= */
+
+const errorBox =
+document.getElementById("error");
+
+window.addEventListener("error",(event)=>{
+
+    console.error(event.error || event.message);
+
+});
+
+
+/* =========================================================
    SCENE
 ========================================================= */
 
-const scene = new THREE.Scene();
+const scene =
+new THREE.Scene();
 
-scene.background = new THREE.Color(0x030817);
+scene.background =
+new THREE.Color(0x030817);
 
 
 /* =========================================================
    CAMERA
 ========================================================= */
 
-const camera = new THREE.PerspectiveCamera(
+const camera =
+new THREE.PerspectiveCamera(
     38,
     window.innerWidth / window.innerHeight,
     0.1,
     1000
 );
 
+/* Aircraft clearly visible */
+
 camera.position.set(
     0,
-    2.8,
-    8.5
+    2.4,
+    9
 );
 
 
@@ -127,10 +193,15 @@ camera.position.set(
    RENDERER
 ========================================================= */
 
-const renderer = new THREE.WebGLRenderer({
+const renderer =
+new THREE.WebGLRenderer({
+
     antialias:true,
+
     alpha:false,
+
     powerPreference:"high-performance"
+
 });
 
 renderer.setPixelRatio(
@@ -142,33 +213,50 @@ renderer.setSize(
     window.innerHeight
 );
 
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.outputColorSpace =
+THREE.SRGBColorSpace;
 
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.35;
+renderer.toneMapping =
+THREE.ACESFilmicToneMapping;
 
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMappingExposure =
+1.35;
 
-document.body.appendChild(renderer.domElement);
+renderer.shadowMap.enabled =
+true;
+
+renderer.shadowMap.type =
+THREE.PCFSoftShadowMap;
+
+document.body.appendChild(
+    renderer.domElement
+);
 
 
 /* =========================================================
    CONTROLS
 ========================================================= */
 
-const controls = new OrbitControls(
+const controls =
+new OrbitControls(
     camera,
     renderer.domElement
 );
 
-controls.enableDamping = true;
-controls.dampingFactor = 0.07;
+controls.enableDamping =
+true;
 
-controls.enablePan = false;
+controls.dampingFactor =
+0.07;
 
-controls.minDistance = 4.5;
-controls.maxDistance = 15;
+controls.enablePan =
+false;
+
+controls.minDistance =
+4;
+
+controls.maxDistance =
+15;
 
 controls.target.set(
     0,
@@ -181,17 +269,21 @@ controls.target.set(
    LIGHTING
 ========================================================= */
 
-const ambientLight = new THREE.AmbientLight(
+const ambientLight =
+new THREE.AmbientLight(
     0xffffff,
-    2.2
+    2.4
 );
 
-scene.add(ambientLight);
+scene.add(
+    ambientLight
+);
 
 
-/* Main white light */
+/* Main light */
 
-const mainLight = new THREE.DirectionalLight(
+const mainLight =
+new THREE.DirectionalLight(
     0xffffff,
     5
 );
@@ -202,17 +294,21 @@ mainLight.position.set(
     8
 );
 
-mainLight.castShadow = true;
+mainLight.castShadow =
+true;
 
-scene.add(mainLight);
+scene.add(
+    mainLight
+);
 
 
 /* Front blue light */
 
-const blueLight = new THREE.PointLight(
+const blueLight =
+new THREE.PointLight(
     0x168cff,
-    22,
-    20
+    25,
+    22
 );
 
 blueLight.position.set(
@@ -221,15 +317,18 @@ blueLight.position.set(
     6
 );
 
-scene.add(blueLight);
+scene.add(
+    blueLight
+);
 
 
-/* Rear light */
+/* Rear blue light */
 
-const rearLight = new THREE.PointLight(
+const rearLight =
+new THREE.PointLight(
     0x0066ff,
-    18,
-    18
+    20,
+    20
 );
 
 rearLight.position.set(
@@ -238,15 +337,18 @@ rearLight.position.set(
     -5
 );
 
-scene.add(rearLight);
+scene.add(
+    rearLight
+);
 
 
-/* Warm highlight */
+/* Warm light */
 
-const warmLight = new THREE.PointLight(
+const warmLight =
+new THREE.PointLight(
     0xffaa33,
-    8,
-    14
+    10,
+    15
 );
 
 warmLight.position.set(
@@ -255,16 +357,21 @@ warmLight.position.set(
     1
 );
 
-scene.add(warmLight);
+scene.add(
+    warmLight
+);
 
 
 /* =========================================================
-   AIRCRAFT
+   AIRCRAFT GROUP
 ========================================================= */
 
-const aircraft = new THREE.Group();
+const aircraft =
+new THREE.Group();
 
-scene.add(aircraft);
+scene.add(
+    aircraft
+);
 
 
 /* =========================================================
@@ -279,6 +386,7 @@ new THREE.MeshStandardMaterial({
     metalness:0.65,
 
     roughness:0.25
+
 });
 
 
@@ -290,6 +398,7 @@ new THREE.MeshStandardMaterial({
     metalness:0.55,
 
     roughness:0.3
+
 });
 
 
@@ -305,6 +414,7 @@ new THREE.MeshStandardMaterial({
     emissive:0x003b88,
 
     emissiveIntensity:0.45
+
 });
 
 
@@ -320,6 +430,7 @@ new THREE.MeshStandardMaterial({
     emissive:0x5c2d00,
 
     emissiveIntensity:0.25
+
 });
 
 
@@ -337,6 +448,7 @@ new THREE.MeshPhysicalMaterial({
     transparent:true,
 
     opacity:0.95
+
 });
 
 
@@ -361,10 +473,15 @@ new THREE.Mesh(
 body.rotation.z =
 Math.PI / 2;
 
-body.castShadow = true;
-body.receiveShadow = true;
+body.castShadow =
+true;
 
-aircraft.add(body);
+body.receiveShadow =
+true;
+
+aircraft.add(
+    body
+);
 
 
 /* =========================================================
@@ -390,11 +507,18 @@ nose.scale.set(
     1
 );
 
-nose.position.z = -2.0;
+nose.position.set(
+    0,
+    0,
+    -2.0
+);
 
-nose.castShadow = true;
+nose.castShadow =
+true;
 
-aircraft.add(nose);
+aircraft.add(
+    nose
+);
 
 
 /* =========================================================
@@ -426,7 +550,9 @@ cockpit.position.set(
     -0.45
 );
 
-aircraft.add(cockpit);
+aircraft.add(
+    cockpit
+);
 
 
 /* =========================================================
@@ -462,7 +588,9 @@ frame.position.set(
     -0.45
 );
 
-aircraft.add(frame);
+aircraft.add(
+    frame
+);
 
 
 /* =========================================================
@@ -519,12 +647,13 @@ function createWing(side){
 
 
     wing.rotation.y =
-    side === 1
-    ? 0
-    : Math.PI;
+        side === 1
+        ? 0
+        : Math.PI;
 
 
-    wing.rotation.x = -0.04;
+    wing.rotation.x =
+    -0.04;
 
 
     wing.position.set(
@@ -534,14 +663,18 @@ function createWing(side){
     );
 
 
-    wing.castShadow = true;
+    wing.castShadow =
+    true;
 
-    wing.receiveShadow = true;
+    wing.receiveShadow =
+    true;
 
-    aircraft.add(wing);
+    aircraft.add(
+        wing
+    );
 
 
-    /* Wing blue/gold edge */
+    /* GOLD EDGE */
 
     const edgeGeometry =
     new THREE.BoxGeometry(
@@ -563,11 +696,13 @@ function createWing(side){
     );
 
     edge.rotation.z =
-    side === 1
-    ? -0.05
-    : 0.05;
+        side === 1
+        ? -0.05
+        : 0.05;
 
-    aircraft.add(edge);
+    aircraft.add(
+        edge
+    );
 }
 
 createWing(1);
@@ -600,13 +735,16 @@ function createTailWing(side){
     );
 
     wing.rotation.z =
-    side === 1
-    ? -0.12
-    : 0.12;
+        side === 1
+        ? -0.12
+        : 0.12;
 
-    wing.castShadow = true;
+    wing.castShadow =
+    true;
 
-    aircraft.add(wing);
+    aircraft.add(
+        wing
+    );
 }
 
 createTailWing(1);
@@ -639,13 +777,16 @@ tail.position.set(
 tail.rotation.z =
 -0.12;
 
-tail.castShadow = true;
+tail.castShadow =
+true;
 
-aircraft.add(tail);
+aircraft.add(
+    tail
+);
 
 
 /* =========================================================
-   TAIL STRIPE
+   TAIL GOLD STRIPE
 ========================================================= */
 
 const stripeGeometry =
@@ -667,7 +808,9 @@ stripe.position.set(
     1.15
 );
 
-aircraft.add(stripe);
+aircraft.add(
+    stripe
+);
 
 
 /* =========================================================
@@ -699,12 +842,15 @@ function createEngine(side){
         -0.52
     );
 
-    engine.castShadow = true;
+    engine.castShadow =
+    true;
 
-    aircraft.add(engine);
+    aircraft.add(
+        engine
+    );
 
 
-    /* Engine blue glow */
+    /* Engine glow */
 
     const glowGeometry =
     new THREE.CylinderGeometry(
@@ -734,7 +880,9 @@ function createEngine(side){
         -1.18
     );
 
-    aircraft.add(engineGlow);
+    aircraft.add(
+        engineGlow
+    );
 }
 
 createEngine(1);
@@ -754,7 +902,9 @@ propeller.position.set(
     -2.92
 );
 
-aircraft.add(propeller);
+aircraft.add(
+    propeller
+);
 
 
 /* Hub */
@@ -772,7 +922,9 @@ new THREE.Mesh(
     goldMaterial
 );
 
-propeller.add(hub);
+propeller.add(
+    hub
+);
 
 
 /* Blades */
@@ -798,9 +950,12 @@ for(let i=0;i<4;i++){
     blade.rotation.z =
     i * Math.PI / 2;
 
-    blade.castShadow = true;
+    blade.castShadow =
+    true;
 
-    propeller.add(blade);
+    propeller.add(
+        blade
+    );
 }
 
 
@@ -817,11 +972,13 @@ new THREE.SphereGeometry(
 
 const frontLight =
 new THREE.Mesh(
+
     frontLightGeometry,
 
     new THREE.MeshBasicMaterial({
         color:0x00eaff
     })
+
 );
 
 frontLight.position.set(
@@ -830,18 +987,23 @@ frontLight.position.set(
     -3.02
 );
 
-aircraft.add(frontLight);
+aircraft.add(
+    frontLight
+);
 
 
 /* =========================================================
-   FLY X LOGO ON AIRCRAFT
+   FLY X LOGO
 ========================================================= */
 
 const logoCanvas =
 document.createElement("canvas");
 
-logoCanvas.width = 512;
-logoCanvas.height = 128;
+logoCanvas.width =
+512;
+
+logoCanvas.height =
+128;
 
 const ctx =
 logoCanvas.getContext("2d");
@@ -883,9 +1045,13 @@ THREE.SRGBColorSpace;
 
 const logoMaterial =
 new THREE.MeshBasicMaterial({
+
     map:logoTexture,
+
     transparent:true,
+
     depthWrite:false
+
 });
 
 
@@ -911,31 +1077,38 @@ logo.position.set(
 logo.rotation.y =
 Math.PI;
 
-aircraft.add(logo);
+aircraft.add(
+    logo
+);
 
 
 /* =========================================================
-   UNDER AIRCRAFT BLUE GLOW
+   BLUE GLOW UNDER AIRCRAFT
 ========================================================= */
 
-const glowGeometry =
+const groundGlowGeometry =
 new THREE.CircleGeometry(
     3.6,
     64
 );
 
-const glowMaterial =
+const groundGlowMaterial =
 new THREE.MeshBasicMaterial({
+
     color:0x0077ff,
+
     transparent:true,
+
     opacity:0.12,
+
     side:THREE.DoubleSide
+
 });
 
 const groundGlow =
 new THREE.Mesh(
-    glowGeometry,
-    glowMaterial
+    groundGlowGeometry,
+    groundGlowMaterial
 );
 
 groundGlow.rotation.x =
@@ -944,11 +1117,13 @@ groundGlow.rotation.x =
 groundGlow.position.y =
 -1.35;
 
-scene.add(groundGlow);
+scene.add(
+    groundGlow
+);
 
 
 /* =========================================================
-   SMALL POINT LIGHT UNDER AIRCRAFT
+   UNDER LIGHT
 ========================================================= */
 
 const underLight =
@@ -964,11 +1139,13 @@ underLight.position.set(
     0
 );
 
-scene.add(underLight);
+scene.add(
+    underLight
+);
 
 
 /* =========================================================
-   START POSITION
+   AIRCRAFT START POSITION
 ========================================================= */
 
 aircraft.position.set(
@@ -977,10 +1154,9 @@ aircraft.position.set(
     0
 );
 
-
 /*
    IMPORTANT:
-   Keep aircraft facing slightly toward camera.
+   Nose camera ki taraf rahega.
 */
 
 aircraft.rotation.set(
@@ -997,6 +1173,7 @@ aircraft.rotation.set(
 const clock =
 new THREE.Clock();
 
+
 function animate(){
 
     requestAnimationFrame(
@@ -1008,23 +1185,23 @@ function animate(){
     clock.getElapsedTime();
 
 
-    /* Propeller */
+    /* Propeller rotation */
 
     propeller.rotation.z +=
     0.5;
 
 
-    /* Smooth floating */
+    /* Aircraft floating */
 
     aircraft.position.y =
-    Math.sin(time * 1.5) * 0.08;
+        Math.sin(time * 1.5) * 0.08;
 
 
-    /* Very subtle glow movement */
+    /* Glow breathing */
 
     groundGlow.material.opacity =
-    0.10 +
-    Math.sin(time * 2) * 0.025;
+        0.10 +
+        Math.sin(time * 2) * 0.025;
 
 
     controls.update();
@@ -1071,19 +1248,18 @@ window.addEventListener(
 
 
 /* =========================================================
-   ERROR HANDLING
+   WEBGL ERROR
 ========================================================= */
 
-window.addEventListener(
-    "error",
-    function(event){
+if(!renderer.getContext()){
 
-        console.error(
-            event.error || event.message
-        );
+    errorBox.style.display =
+    "block";
 
-    }
-);
+    errorBox.innerText =
+    "3D graphics is not supported on this device/browser.";
+
+}
 
 </script>
 
