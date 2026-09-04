@@ -11,7 +11,7 @@ html,body{
     width:100%;
     height:100%;
     overflow:hidden;
-    background:#030817;
+    background:#071426;
     font-family:Arial,sans-serif;
 }
 
@@ -64,7 +64,12 @@ import {OrbitControls} from
 
 const scene = new THREE.Scene();
 
-scene.background = new THREE.Color(0x030817);
+scene.background = new THREE.Color(0x071426);
+
+
+/* =========================
+   CAMERA
+========================= */
 
 const camera = new THREE.PerspectiveCamera(
     42,
@@ -73,7 +78,7 @@ const camera = new THREE.PerspectiveCamera(
     1000
 );
 
-camera.position.set(0,3.2,9);
+camera.position.set(0,1.8,6.5);
 
 
 /* =========================
@@ -85,18 +90,26 @@ const renderer = new THREE.WebGLRenderer({
     powerPreference:"high-performance"
 });
 
-renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio,2)
+);
 
 renderer.setSize(
     window.innerWidth,
     window.innerHeight
 );
 
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.outputColorSpace =
+    THREE.SRGBColorSpace;
 
 renderer.shadowMap.enabled = true;
 
-document.body.appendChild(renderer.domElement);
+renderer.shadowMap.type =
+    THREE.PCFSoftShadowMap;
+
+document.body.appendChild(
+    renderer.domElement
+);
 
 
 /* =========================
@@ -111,53 +124,89 @@ const controls = new OrbitControls(
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
 
-controls.minDistance = 4;
-controls.maxDistance = 16;
+controls.minDistance = 3.5;
+controls.maxDistance = 14;
 
-controls.target.set(0,0,0);
+controls.target.set(
+    0,
+    0.15,
+    0
+);
 
 
 /* =========================
    LIGHTING
 ========================= */
 
-const ambient = new THREE.AmbientLight(
-    0x6da8ff,
-    1.8
-);
+const ambient =
+    new THREE.AmbientLight(
+        0x9fcaff,
+        3.5
+    );
 
 scene.add(ambient);
 
 
-const keyLight = new THREE.DirectionalLight(
-    0xffffff,
-    4
+const keyLight =
+    new THREE.DirectionalLight(
+        0xffffff,
+        7
+    );
+
+keyLight.position.set(
+    5,
+    8,
+    7
 );
 
-keyLight.position.set(5,8,7);
 keyLight.castShadow = true;
 
 scene.add(keyLight);
 
 
-const blueLight = new THREE.PointLight(
-    0x008cff,
-    15,
-    15
+const fillLight =
+    new THREE.DirectionalLight(
+        0x4da6ff,
+        4
+    );
+
+fillLight.position.set(
+    -6,
+    3,
+    5
 );
 
-blueLight.position.set(-5,2,4);
+scene.add(fillLight);
+
+
+const blueLight =
+    new THREE.PointLight(
+        0x008cff,
+        20,
+        18
+    );
+
+blueLight.position.set(
+    -5,
+    2,
+    4
+);
 
 scene.add(blueLight);
 
 
-const goldLight = new THREE.PointLight(
-    0xffa800,
-    12,
-    12
-);
+const goldLight =
+    new THREE.PointLight(
+        0xffa800,
+        16,
+        15
+    );
 
-goldLight.position.set(5,1,-3);
+goldLight.position.set(
+    5,
+    2,
+    -3
+);
 
 scene.add(goldLight);
 
@@ -166,84 +215,118 @@ scene.add(goldLight);
    AIRCRAFT GROUP
 ========================= */
 
-const aircraft = new THREE.Group();
+const aircraft =
+    new THREE.Group();
 
 scene.add(aircraft);
+
+
+/* Aircraft size */
+
+aircraft.scale.set(
+    1.35,
+    1.35,
+    1.35
+);
 
 
 /* =========================
    MATERIALS
 ========================= */
 
-const bodyMaterial = new THREE.MeshStandardMaterial({
-    color:0x182c42,
-    metalness:0.85,
-    roughness:0.22
-});
+const bodyMaterial =
+    new THREE.MeshStandardMaterial({
 
-const darkMaterial = new THREE.MeshStandardMaterial({
-    color:0x07111e,
-    metalness:0.75,
-    roughness:0.28
-});
+        color:0x245a86,
 
-const blueMaterial = new THREE.MeshStandardMaterial({
-    color:0x078cff,
-    metalness:0.7,
-    roughness:0.2,
-    emissive:0x002c66,
-    emissiveIntensity:0.5
-});
+        metalness:0.8,
 
-const goldMaterial = new THREE.MeshStandardMaterial({
-    color:0xffb52e,
-    metalness:0.8,
-    roughness:0.18,
-    emissive:0x542900,
-    emissiveIntensity:0.3
-});
+        roughness:0.2
+    });
 
-const glassMaterial = new THREE.MeshPhysicalMaterial({
-    color:0x06192b,
-    metalness:0.25,
-    roughness:0.08,
-    transmission:0.35,
-    transparent:true,
-    opacity:0.92
-});
 
-const whiteMaterial = new THREE.MeshStandardMaterial({
-    color:0xddeaff,
-    metalness:0.75,
-    roughness:0.2
-});
+const darkMaterial =
+    new THREE.MeshStandardMaterial({
+
+        color:0x102238,
+
+        metalness:0.7,
+
+        roughness:0.25
+    });
+
+
+const blueMaterial =
+    new THREE.MeshStandardMaterial({
+
+        color:0x078cff,
+
+        metalness:0.7,
+
+        roughness:0.2,
+
+        emissive:0x002c66,
+
+        emissiveIntensity:0.5
+    });
+
+
+const goldMaterial =
+    new THREE.MeshStandardMaterial({
+
+        color:0xffb52e,
+
+        metalness:0.8,
+
+        roughness:0.18,
+
+        emissive:0x542900,
+
+        emissiveIntensity:0.3
+    });
+
+
+const glassMaterial =
+    new THREE.MeshPhysicalMaterial({
+
+        color:0x0a2945,
+
+        metalness:0.25,
+
+        roughness:0.08,
+
+        transmission:0.25,
+
+        transparent:true,
+
+        opacity:0.95
+    });
 
 
 /* =========================
    MAIN BODY
 ========================= */
 
-const bodyGeo = new THREE.CapsuleGeometry(
-    1.05,
-    3.6,
-    12,
-    32
-);
+const bodyGeo =
+    new THREE.CapsuleGeometry(
+        1.05,
+        3.6,
+        12,
+        32
+    );
 
-const body = new THREE.Mesh(
-    bodyGeo,
-    bodyMaterial
-);
+const body =
+    new THREE.Mesh(
+        bodyGeo,
+        bodyMaterial
+    );
 
-body.rotation.z = Math.PI/2;
-
-body.scale.set(
-    0.95,
-    1,
-    1
-);
+body.rotation.z =
+    Math.PI / 2;
 
 body.castShadow = true;
+
+body.receiveShadow = true;
 
 aircraft.add(body);
 
@@ -252,16 +335,18 @@ aircraft.add(body);
    NOSE
 ========================= */
 
-const noseGeo = new THREE.SphereGeometry(
-    1.04,
-    32,
-    20
-);
+const noseGeo =
+    new THREE.SphereGeometry(
+        1.04,
+        32,
+        20
+    );
 
-const nose = new THREE.Mesh(
-    noseGeo,
-    bodyMaterial
-);
+const nose =
+    new THREE.Mesh(
+        noseGeo,
+        bodyMaterial
+    );
 
 nose.scale.set(
     0.75,
@@ -269,7 +354,8 @@ nose.scale.set(
     1
 );
 
-nose.position.z = -2.0;
+nose.position.z =
+    -2.0;
 
 nose.castShadow = true;
 
@@ -280,16 +366,18 @@ aircraft.add(nose);
    COCKPIT
 ========================= */
 
-const cockpitGeo = new THREE.SphereGeometry(
-    0.85,
-    32,
-    20
-);
+const cockpitGeo =
+    new THREE.SphereGeometry(
+        0.85,
+        32,
+        20
+    );
 
-const cockpit = new THREE.Mesh(
-    cockpitGeo,
-    glassMaterial
-);
+const cockpit =
+    new THREE.Mesh(
+        cockpitGeo,
+        glassMaterial
+    );
 
 cockpit.scale.set(
     0.72,
@@ -306,21 +394,26 @@ cockpit.position.set(
 aircraft.add(cockpit);
 
 
-/* COCKPIT GOLD FRAME */
+/* =========================
+   COCKPIT GOLD FRAME
+========================= */
 
-const frameGeo = new THREE.TorusGeometry(
-    0.7,
-    0.055,
-    8,
-    32
-);
+const frameGeo =
+    new THREE.TorusGeometry(
+        0.7,
+        0.055,
+        8,
+        32
+    );
 
-const frame = new THREE.Mesh(
-    frameGeo,
-    goldMaterial
-);
+const frame =
+    new THREE.Mesh(
+        frameGeo,
+        goldMaterial
+    );
 
-frame.rotation.x = Math.PI/2;
+frame.rotation.x =
+    Math.PI / 2;
 
 frame.scale.set(
     1,
@@ -343,34 +436,62 @@ aircraft.add(frame);
 
 function createWing(side){
 
-    const shape = new THREE.Shape();
+    const shape =
+        new THREE.Shape();
 
     shape.moveTo(0,0);
-    shape.lineTo(3.8,0.15);
-    shape.lineTo(3.25,-0.45);
-    shape.lineTo(0.5,-0.35);
+
+    shape.lineTo(
+        3.8,
+        0.15
+    );
+
+    shape.lineTo(
+        3.25,
+        -0.45
+    );
+
+    shape.lineTo(
+        0.5,
+        -0.35
+    );
+
     shape.closePath();
 
-    const geo = new THREE.ExtrudeGeometry(
-        shape,
-        {
-            depth:0.16,
-            bevelEnabled:true,
-            bevelSegments:2,
-            bevelSize:0.04,
-            bevelThickness:0.04
-        }
-    );
 
-    const wing = new THREE.Mesh(
-        geo,
-        bodyMaterial
-    );
+    const geo =
+        new THREE.ExtrudeGeometry(
+            shape,
+            {
+                depth:0.16,
+
+                bevelEnabled:true,
+
+                bevelSegments:2,
+
+                bevelSize:0.04,
+
+                bevelThickness:0.04
+            }
+        );
+
+
+    const wing =
+        new THREE.Mesh(
+            geo,
+            bodyMaterial
+        );
+
 
     wing.rotation.y =
-        side === 1 ? 0.02 : Math.PI;
+        side === 1
+        ? 0.02
+        : Math.PI;
 
-    wing.rotation.x = -0.04;
+
+    wing.rotation.x =
+        -0.04;
+
 
     wing.position.set(
         side * 0.35,
@@ -378,9 +499,10 @@ function createWing(side){
         -0.1
     );
 
-    wing.scale.x = 1;
 
     wing.castShadow = true;
+
+    wing.receiveShadow = true;
 
     aircraft.add(wing);
 
@@ -394,10 +516,13 @@ function createWing(side){
             0.06
         );
 
-    const edge = new THREE.Mesh(
-        edgeGeo,
-        goldMaterial
-    );
+
+    const edge =
+        new THREE.Mesh(
+            edgeGeo,
+            goldMaterial
+        );
+
 
     edge.position.set(
         side * 1.95,
@@ -405,8 +530,12 @@ function createWing(side){
         -0.15
     );
 
+
     edge.rotation.z =
-        side === 1 ? -0.05 : 0.05;
+        side === 1
+        ? -0.05
+        : 0.05;
+
 
     aircraft.add(edge);
 }
@@ -421,16 +550,20 @@ createWing(-1);
 
 function createTailWing(side){
 
-    const geo = new THREE.BoxGeometry(
-        1.65,
-        0.12,
-        0.55
-    );
+    const geo =
+        new THREE.BoxGeometry(
+            1.65,
+            0.12,
+            0.55
+        );
 
-    const wing = new THREE.Mesh(
-        geo,
-        blueMaterial
-    );
+
+    const wing =
+        new THREE.Mesh(
+            geo,
+            blueMaterial
+        );
+
 
     wing.position.set(
         side * 0.8,
@@ -438,8 +571,14 @@ function createTailWing(side){
         1.85
     );
 
+
     wing.rotation.z =
-        side === 1 ? -0.14 : 0.14;
+        side === 1
+        ? -0.14
+        : 0.14;
+
+
+    wing.castShadow = true;
 
     aircraft.add(wing);
 }
@@ -452,16 +591,20 @@ createTailWing(-1);
    VERTICAL TAIL
 ========================= */
 
-const tailGeo = new THREE.BoxGeometry(
-    0.18,
-    1.35,
-    0.8
-);
+const tailGeo =
+    new THREE.BoxGeometry(
+        0.18,
+        1.35,
+        0.8
+    );
 
-const tail = new THREE.Mesh(
-    tailGeo,
-    bodyMaterial
-);
+
+const tail =
+    new THREE.Mesh(
+        tailGeo,
+        bodyMaterial
+    );
+
 
 tail.position.set(
     0,
@@ -469,7 +612,12 @@ tail.position.set(
     1.65
 );
 
-tail.rotation.z = -0.12;
+
+tail.rotation.z =
+    -0.12;
+
+
+tail.castShadow = true;
 
 aircraft.add(tail);
 
@@ -485,10 +633,13 @@ const stripeGeo =
         0.06
     );
 
-const stripe = new THREE.Mesh(
-    stripeGeo,
-    goldMaterial
-);
+
+const stripe =
+    new THREE.Mesh(
+        stripeGeo,
+        goldMaterial
+    );
+
 
 stripe.position.set(
     0,
@@ -505,25 +656,34 @@ aircraft.add(stripe);
 
 function createEngine(side){
 
-    const geo = new THREE.CylinderGeometry(
-        0.32,
-        0.42,
-        1.25,
-        24
-    );
+    const geo =
+        new THREE.CylinderGeometry(
+            0.32,
+            0.42,
+            1.25,
+            24
+        );
 
-    const engine = new THREE.Mesh(
-        geo,
-        darkMaterial
-    );
 
-    engine.rotation.z = Math.PI/2;
+    const engine =
+        new THREE.Mesh(
+            geo,
+            darkMaterial
+        );
+
+
+    engine.rotation.z =
+        Math.PI / 2;
+
 
     engine.position.set(
         side * 1.05,
         -0.15,
         -0.55
     );
+
+
+    engine.castShadow = true;
 
     aircraft.add(engine);
 
@@ -536,23 +696,30 @@ function createEngine(side){
             24
         );
 
+
     const glowMat =
         new THREE.MeshBasicMaterial({
             color:0x00aaff
         });
 
-    const glow = new THREE.Mesh(
-        glowGeo,
-        glowMat
-    );
 
-    glow.rotation.z = Math.PI/2;
+    const glow =
+        new THREE.Mesh(
+            glowGeo,
+            glowMat
+        );
+
+
+    glow.rotation.z =
+        Math.PI / 2;
+
 
     glow.position.set(
         side * 1.05,
         -0.15,
         -1.18
     );
+
 
     aircraft.add(glow);
 }
@@ -565,7 +732,9 @@ createEngine(-1);
    FRONT PROPELLER
 ========================= */
 
-const propeller = new THREE.Group();
+const propeller =
+    new THREE.Group();
+
 
 propeller.position.set(
     0,
@@ -573,10 +742,11 @@ propeller.position.set(
     -2.92
 );
 
+
 aircraft.add(propeller);
 
 
-/* Propeller center */
+/* HUB */
 
 const hubGeo =
     new THREE.SphereGeometry(
@@ -585,17 +755,24 @@ const hubGeo =
         24
     );
 
-const hub = new THREE.Mesh(
-    hubGeo,
-    goldMaterial
-);
+
+const hub =
+    new THREE.Mesh(
+        hubGeo,
+        goldMaterial
+    );
+
 
 propeller.add(hub);
 
 
-/* Blades */
+/* BLADES */
 
-for(let i=0;i<4;i++){
+for(
+    let i = 0;
+    i < 4;
+    i++
+){
 
     const bladeGeo =
         new THREE.BoxGeometry(
@@ -604,15 +781,21 @@ for(let i=0;i<4;i++){
             0.07
         );
 
-    const blade = new THREE.Mesh(
-        bladeGeo,
-        darkMaterial
-    );
 
-    blade.position.y = 0.82;
+    const blade =
+        new THREE.Mesh(
+            bladeGeo,
+            darkMaterial
+        );
+
+
+    blade.position.y =
+        0.82;
+
 
     blade.rotation.z =
-        i * Math.PI/2;
+        i * Math.PI / 2;
+
 
     blade.castShadow = true;
 
@@ -631,18 +814,23 @@ const lightGeo =
         16
     );
 
-const frontLight = new THREE.Mesh(
-    lightGeo,
-    new THREE.MeshBasicMaterial({
-        color:0x00eaff
-    })
-);
+
+const frontLight =
+    new THREE.Mesh(
+        lightGeo,
+
+        new THREE.MeshBasicMaterial({
+            color:0x00eaff
+        })
+    );
+
 
 frontLight.position.set(
     0,
     -0.15,
     -3.0
 );
+
 
 aircraft.add(frontLight);
 
@@ -651,20 +839,33 @@ aircraft.add(frontLight);
    FLY X LOGO
 ========================= */
 
-const canvas = document.createElement("canvas");
+const canvas =
+    document.createElement("canvas");
 
 canvas.width = 512;
 canvas.height = 128;
 
-const ctx = canvas.getContext("2d");
+const ctx =
+    canvas.getContext("2d");
 
-ctx.clearRect(0,0,512,128);
+ctx.clearRect(
+    0,
+    0,
+    512,
+    128
+);
 
-ctx.font = "bold 90px Arial";
-ctx.textAlign = "center";
-ctx.textBaseline = "middle";
+ctx.font =
+    "bold 90px Arial";
 
-ctx.fillStyle = "#ffffff";
+ctx.textAlign =
+    "center";
+
+ctx.textBaseline =
+    "middle";
+
+ctx.fillStyle =
+    "#ffffff";
 
 ctx.fillText(
     "FLY X",
@@ -672,14 +873,21 @@ ctx.fillText(
     64
 );
 
+
 const logoTexture =
-    new THREE.CanvasTexture(canvas);
+    new THREE.CanvasTexture(
+        canvas
+    );
+
 
 const logoMaterial =
     new THREE.MeshBasicMaterial({
+
         map:logoTexture,
+
         transparent:true
     });
+
 
 const logoGeo =
     new THREE.PlaneGeometry(
@@ -687,10 +895,13 @@ const logoGeo =
         0.43
     );
 
-const logo = new THREE.Mesh(
-    logoGeo,
-    logoMaterial
-);
+
+const logo =
+    new THREE.Mesh(
+        logoGeo,
+        logoMaterial
+    );
+
 
 logo.position.set(
     0,
@@ -698,19 +909,16 @@ logo.position.set(
     -1.02
 );
 
-logo.rotation.y = Math.PI;
 
-logo.scale.set(
-    1,
-    1,
-    1
-);
+logo.rotation.y =
+    Math.PI;
+
 
 aircraft.add(logo);
 
 
 /* =========================
-   GLOW UNDER AIRCRAFT
+   BLUE GLOW
 ========================= */
 
 const glowGeo =
@@ -719,22 +927,34 @@ const glowGeo =
         64
     );
 
+
 const glowMat =
     new THREE.MeshBasicMaterial({
+
         color:0x0066ff,
+
         transparent:true,
-        opacity:0.10,
+
+        opacity:0.14,
+
         side:THREE.DoubleSide
     });
 
-const glow = new THREE.Mesh(
-    glowGeo,
-    glowMat
-);
 
-glow.rotation.x = -Math.PI/2;
+const glow =
+    new THREE.Mesh(
+        glowGeo,
+        glowMat
+    );
 
-glow.position.y = -1.25;
+
+glow.rotation.x =
+    -Math.PI / 2;
+
+
+glow.position.y =
+    -1.25;
+
 
 scene.add(glow);
 
@@ -743,9 +963,11 @@ scene.add(glow);
    START POSITION
 ========================= */
 
-aircraft.rotation.y = Math.PI;
+aircraft.rotation.y =
+    Math.PI;
 
-aircraft.position.y = 0;
+aircraft.position.y =
+    0;
 
 
 /* =========================
@@ -754,16 +976,27 @@ aircraft.position.y = 0;
 
 function animate(){
 
-    requestAnimationFrame(animate);
+    requestAnimationFrame(
+        animate
+    );
 
-    /* rotating propeller */
-    propeller.rotation.z += 0.45;
 
-    /* subtle floating */
+    /* PROPELLER */
+
+    propeller.rotation.z +=
+        0.45;
+
+
+    /* FLOATING */
+
     aircraft.position.y =
-        Math.sin(Date.now()*0.0015) * 0.08;
+        Math.sin(
+            Date.now() * 0.0015
+        ) * 0.08;
+
 
     controls.update();
+
 
     renderer.render(
         scene,
@@ -786,7 +1019,9 @@ window.addEventListener(
             window.innerWidth /
             window.innerHeight;
 
+
         camera.updateProjectionMatrix();
+
 
         renderer.setSize(
             window.innerWidth,
