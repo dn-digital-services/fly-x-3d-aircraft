@@ -2,33 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
 <meta name="viewport"
-content="width=device-width,
-initial-scale=1.0,
-maximum-scale=1.0,
-user-scalable=no">
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<title>FLY X 3D Aircraft</title>
-
-<!-- IMPORTANT FIX:
-     OrbitControls ke "three" import ko resolve karta hai -->
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
-  }
-}
-</script>
+<title>FLY X - 3D Helicopter</title>
 
 <style>
-
 *{
     box-sizing:border-box;
 }
 
-html,
-body{
+html,body{
     margin:0;
     width:100%;
     height:100%;
@@ -38,7 +22,8 @@ body{
 }
 
 body{
-    position:relative;
+    position:fixed;
+    inset:0;
 }
 
 canvas{
@@ -52,25 +37,19 @@ canvas{
 
 #title{
     position:fixed;
-    top:25px;
+    top:24px;
     left:0;
     width:100%;
     text-align:center;
-
-    color:#ffffff;
-
+    color:#fff;
     font-size:38px;
-    font-weight:800;
-
+    font-weight:900;
     letter-spacing:10px;
-
     z-index:10;
     pointer-events:none;
-
     text-shadow:
-        0 0 8px rgba(80,170,255,.9),
-        0 0 25px rgba(0,120,255,.7),
-        0 0 45px rgba(0,100,255,.35);
+        0 0 8px rgba(255,40,40,.8),
+        0 0 25px rgba(255,0,0,.5);
 }
 
 #hint{
@@ -78,63 +57,36 @@ canvas{
     bottom:28px;
     left:0;
     width:100%;
-
     text-align:center;
-
-    color:#8fc7f5;
-
-    font-size:14px;
-    letter-spacing:.3px;
-
+    color:#ff9a9a;
+    font-size:13px;
+    letter-spacing:.5px;
     z-index:10;
     pointer-events:none;
-
-    text-shadow:0 0 8px #006cff;
+    text-shadow:0 0 8px #ff2020;
 }
 
-#error{
-    display:none;
-
+#loading{
     position:fixed;
-
-    left:20px;
-    right:20px;
-    top:100px;
-
-    padding:15px;
-
-    border-radius:12px;
-
-    background:#250d12;
-
-    color:#ffb5b5;
-
-    z-index:30;
-
-    text-align:center;
-
-    font-size:13px;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#ff5555;
+    font-size:15px;
+    z-index:20;
+    pointer-events:none;
 }
-
 </style>
 </head>
 
 <body>
 
 <div id="title">FLY X</div>
-
-<div id="hint">
-DRAG TO ROTATE • PINCH TO ZOOM
-</div>
-
-<div id="error"></div>
-
+<div id="hint">DRAG TO ROTATE • PINCH TO ZOOM</div>
+<div id="loading">LOADING FLY X...</div>
 
 <script type="module">
-
-/* =========================================================
-   THREE.JS
-========================================================= */
 
 import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
@@ -144,47 +96,28 @@ import { OrbitControls } from
 
 
 /* =========================================================
-   ERROR BOX
-========================================================= */
-
-const errorBox =
-document.getElementById("error");
-
-window.addEventListener("error",(event)=>{
-
-    console.error(event.error || event.message);
-
-});
-
-
-/* =========================================================
    SCENE
 ========================================================= */
 
-const scene =
-new THREE.Scene();
+const scene = new THREE.Scene();
 
-scene.background =
-new THREE.Color(0x030817);
+scene.background = new THREE.Color(0x030817);
 
 
 /* =========================================================
    CAMERA
 ========================================================= */
 
-const camera =
-new THREE.PerspectiveCamera(
-    38,
+const camera = new THREE.PerspectiveCamera(
+    40,
     window.innerWidth / window.innerHeight,
     0.1,
     1000
 );
 
-/* Aircraft clearly visible */
-
 camera.position.set(
-    0,
-    2.4,
+    7,
+    3.8,
     9
 );
 
@@ -193,15 +126,9 @@ camera.position.set(
    RENDERER
 ========================================================= */
 
-const renderer =
-new THREE.WebGLRenderer({
-
+const renderer = new THREE.WebGLRenderer({
     antialias:true,
-
-    alpha:false,
-
     powerPreference:"high-performance"
-
 });
 
 renderer.setPixelRatio(
@@ -219,11 +146,9 @@ THREE.SRGBColorSpace;
 renderer.toneMapping =
 THREE.ACESFilmicToneMapping;
 
-renderer.toneMappingExposure =
-1.35;
+renderer.toneMappingExposure = 1.25;
 
-renderer.shadowMap.enabled =
-true;
+renderer.shadowMap.enabled = true;
 
 renderer.shadowMap.type =
 THREE.PCFSoftShadowMap;
@@ -237,26 +162,18 @@ document.body.appendChild(
    CONTROLS
 ========================================================= */
 
-const controls =
-new OrbitControls(
+const controls = new OrbitControls(
     camera,
     renderer.domElement
 );
 
-controls.enableDamping =
-true;
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
 
-controls.dampingFactor =
-0.07;
+controls.enablePan = false;
 
-controls.enablePan =
-false;
-
-controls.minDistance =
-4;
-
-controls.maxDistance =
-15;
+controls.minDistance = 4;
+controls.maxDistance = 18;
 
 controls.target.set(
     0,
@@ -269,218 +186,210 @@ controls.target.set(
    LIGHTING
 ========================================================= */
 
-const ambientLight =
-new THREE.AmbientLight(
-    0xffffff,
-    2.4
-);
-
 scene.add(
-    ambientLight
+    new THREE.AmbientLight(
+        0xffffff,
+        1.8
+    )
 );
 
 
-/* Main light */
-
-const mainLight =
+const keyLight =
 new THREE.DirectionalLight(
     0xffffff,
-    5
+    4.5
 );
 
-mainLight.position.set(
-    5,
-    8,
+keyLight.position.set(
+    6,
+    9,
     8
 );
 
-mainLight.castShadow =
-true;
+keyLight.castShadow = true;
 
-scene.add(
-    mainLight
-);
+scene.add(keyLight);
 
 
-/* Front blue light */
-
-const blueLight =
+const redLight =
 new THREE.PointLight(
-    0x168cff,
-    25,
-    22
+    0xff1010,
+    30,
+    18
 );
 
-blueLight.position.set(
-    -4,
-    3,
-    6
-);
-
-scene.add(
-    blueLight
-);
-
-
-/* Rear blue light */
-
-const rearLight =
-new THREE.PointLight(
-    0x0066ff,
-    20,
-    20
-);
-
-rearLight.position.set(
-    4,
+redLight.position.set(
     2,
+    2,
+    4
+);
+
+scene.add(redLight);
+
+
+const redRearLight =
+new THREE.PointLight(
+    0xff0000,
+    25,
+    16
+);
+
+redRearLight.position.set(
+    -4,
+    1,
     -5
 );
 
-scene.add(
-    rearLight
-);
+scene.add(redRearLight);
 
 
-/* Warm light */
-
-const warmLight =
+const whiteLight =
 new THREE.PointLight(
-    0xffaa33,
-    10,
-    15
+    0xffffff,
+    12,
+    14
 );
 
-warmLight.position.set(
+whiteLight.position.set(
+    0,
     5,
-    5,
-    1
+    2
 );
 
-scene.add(
-    warmLight
-);
-
-
-/* =========================================================
-   AIRCRAFT GROUP
-========================================================= */
-
-const aircraft =
-new THREE.Group();
-
-scene.add(
-    aircraft
-);
+scene.add(whiteLight);
 
 
 /* =========================================================
    MATERIALS
 ========================================================= */
 
-const bodyMaterial =
+const blackMat =
 new THREE.MeshStandardMaterial({
-
-    color:0x31506d,
-
-    metalness:0.65,
-
-    roughness:0.25
-
+    color:0x090b10,
+    metalness:0.85,
+    roughness:0.2
 });
 
 
-const darkMaterial =
+const black2Mat =
 new THREE.MeshStandardMaterial({
-
-    color:0x182b3f,
-
-    metalness:0.55,
-
-    roughness:0.3
-
+    color:0x151920,
+    metalness:0.75,
+    roughness:0.24
 });
 
 
-const blueMaterial =
+const redMat =
 new THREE.MeshStandardMaterial({
-
-    color:0x087dff,
-
-    metalness:0.55,
-
-    roughness:0.2,
-
-    emissive:0x003b88,
-
-    emissiveIntensity:0.45
-
+    color:0xd90012,
+    metalness:0.72,
+    roughness:0.18,
+    emissive:0x390000,
+    emissiveIntensity:0.35
 });
 
 
-const goldMaterial =
-new THREE.MeshStandardMaterial({
-
-    color:0xffb72e,
-
-    metalness:0.7,
-
-    roughness:0.2,
-
-    emissive:0x5c2d00,
-
-    emissiveIntensity:0.25
-
+const redGlowMat =
+new THREE.MeshBasicMaterial({
+    color:0xff1010
 });
 
 
-const glassMaterial =
+const glassMat =
 new THREE.MeshPhysicalMaterial({
-
-    color:0x0a2b4a,
-
+    color:0x020509,
     metalness:0.15,
-
     roughness:0.08,
-
     transmission:0.15,
-
     transparent:true,
-
-    opacity:0.95
-
+    opacity:0.94
 });
 
 
 /* =========================================================
-   MAIN BODY
+   HELICOPTER ROOT
 ========================================================= */
 
-const bodyGeometry =
-new THREE.CapsuleGeometry(
-    1.0,
-    3.6,
-    16,
-    32
-);
+const helicopter =
+new THREE.Group();
+
+scene.add(helicopter);
+
+
+/* =========================================================
+   HELPER FUNCTIONS
+========================================================= */
+
+function addMesh(
+    geometry,
+    material,
+    position,
+    scale = [1,1,1],
+    rotation = [0,0,0]
+){
+
+    const mesh =
+    new THREE.Mesh(
+        geometry,
+        material
+    );
+
+    mesh.position.set(
+        position[0],
+        position[1],
+        position[2]
+    );
+
+    mesh.scale.set(
+        scale[0],
+        scale[1],
+        scale[2]
+    );
+
+    mesh.rotation.set(
+        rotation[0],
+        rotation[1],
+        rotation[2]
+    );
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    helicopter.add(mesh);
+
+    return mesh;
+}
+
+
+/* =========================================================
+   MAIN FUSELAGE
+========================================================= */
 
 const body =
-new THREE.Mesh(
-    bodyGeometry,
-    bodyMaterial
+addMesh(
+    new THREE.SphereGeometry(
+        1,
+        48,
+        32
+    ),
+    blackMat,
+    [0,0,-0.15],
+    [2.65,1.15,3.05],
+    [0,0,0]
 );
 
-body.rotation.z =
-Math.PI / 2;
 
-body.castShadow =
-true;
+/* lower body */
 
-body.receiveShadow =
-true;
-
-aircraft.add(
-    body
+addMesh(
+    new THREE.SphereGeometry(
+        1,
+        40,
+        24
+    ),
+    black2Mat,
+    [0,-0.38,-0.35],
+    [2.35,0.72,2.35]
 );
 
 
@@ -488,680 +397,652 @@ aircraft.add(
    NOSE
 ========================================================= */
 
-const noseGeometry =
-new THREE.SphereGeometry(
-    1.02,
-    32,
-    24
-);
-
-const nose =
-new THREE.Mesh(
-    noseGeometry,
-    bodyMaterial
-);
-
-nose.scale.set(
-    0.78,
-    0.72,
-    1
-);
-
-nose.position.set(
-    0,
-    0,
-    -2.0
-);
-
-nose.castShadow =
-true;
-
-aircraft.add(
-    nose
+addMesh(
+    new THREE.SphereGeometry(
+        1,
+        40,
+        28
+    ),
+    blackMat,
+    [0,0.02,2.15],
+    [1.72,0.92,1.45]
 );
 
 
 /* =========================================================
-   COCKPIT
+   RED NOSE LOWER ACCENT
 ========================================================= */
 
-const cockpitGeometry =
-new THREE.SphereGeometry(
-    0.82,
-    32,
-    24
-);
-
-const cockpit =
-new THREE.Mesh(
-    cockpitGeometry,
-    glassMaterial
-);
-
-cockpit.scale.set(
-    0.72,
-    0.42,
-    1.15
-);
-
-cockpit.position.set(
-    0,
-    0.72,
-    -0.45
-);
-
-aircraft.add(
-    cockpit
+addMesh(
+    new THREE.SphereGeometry(
+        1,
+        32,
+        20
+    ),
+    redMat,
+    [0,-0.48,1.75],
+    [1.45,0.16,0.9]
 );
 
 
 /* =========================================================
-   COCKPIT GOLD FRAME
+   COCKPIT GLASS
 ========================================================= */
 
-const frameGeometry =
-new THREE.TorusGeometry(
-    0.68,
-    0.055,
-    10,
-    40
-);
-
-const frame =
-new THREE.Mesh(
-    frameGeometry,
-    goldMaterial
-);
-
-frame.rotation.x =
-Math.PI / 2;
-
-frame.scale.set(
-    1,
-    0.55,
-    1
-);
-
-frame.position.set(
-    0,
-    0.72,
-    -0.45
-);
-
-aircraft.add(
-    frame
+addMesh(
+    new THREE.SphereGeometry(
+        1,
+        40,
+        28
+    ),
+    glassMat,
+    [0,0.55,1.55],
+    [1.48,0.48,1.18]
 );
 
 
 /* =========================================================
-   MAIN WINGS
+   COCKPIT CENTER DIVIDER
 ========================================================= */
 
-function createWing(side){
-
-    const shape =
-    new THREE.Shape();
-
-    shape.moveTo(0,0);
-
-    shape.lineTo(
-        3.6,
-        0.15
-    );
-
-    shape.lineTo(
-        3.05,
-        -0.45
-    );
-
-    shape.lineTo(
-        0.4,
-        -0.35
-    );
-
-    shape.closePath();
-
-
-    const geometry =
-    new THREE.ExtrudeGeometry(
-        shape,
-        {
-            depth:0.18,
-
-            bevelEnabled:true,
-
-            bevelSegments:3,
-
-            bevelSize:0.045,
-
-            bevelThickness:0.045
-        }
-    );
-
-
-    const wing =
-    new THREE.Mesh(
-        geometry,
-        bodyMaterial
-    );
-
-
-    wing.rotation.y =
-        side === 1
-        ? 0
-        : Math.PI;
-
-
-    wing.rotation.x =
-    -0.04;
-
-
-    wing.position.set(
-        side * 0.35,
-        -0.05,
-        -0.1
-    );
-
-
-    wing.castShadow =
-    true;
-
-    wing.receiveShadow =
-    true;
-
-    aircraft.add(
-        wing
-    );
-
-
-    /* GOLD EDGE */
-
-    const edgeGeometry =
+addMesh(
     new THREE.BoxGeometry(
-        3.05,
-        0.07,
-        0.07
+        0.10,
+        0.8,
+        1.65
+    ),
+    black2Mat,
+    [0,0.55,1.55]
+);
+
+
+/* =========================================================
+   SIDE WINDOWS
+========================================================= */
+
+function createSideWindow(side){
+
+    addMesh(
+        new THREE.SphereGeometry(
+            1,
+            32,
+            20
+        ),
+        glassMat,
+        [side*1.12,0.58,1.45],
+        [0.08,0.42,0.88],
+        [0,0,0]
     );
 
-    const edge =
-    new THREE.Mesh(
-        edgeGeometry,
-        goldMaterial
-    );
+    /* red window outline */
 
-    edge.position.set(
-        side * 1.95,
-        0.02,
-        -0.16
-    );
-
-    edge.rotation.z =
-        side === 1
-        ? -0.05
-        : 0.05;
-
-    aircraft.add(
-        edge
+    addMesh(
+        new THREE.BoxGeometry(
+            0.055,
+            0.055,
+            1.35
+        ),
+        redGlowMat,
+        [side*1.23,0.58,1.45]
     );
 }
 
-createWing(1);
-createWing(-1);
+createSideWindow(1);
+createSideWindow(-1);
 
 
 /* =========================================================
-   REAR TAIL WINGS
+   UPPER CABIN
 ========================================================= */
 
-function createTailWing(side){
+addMesh(
+    new THREE.SphereGeometry(
+        1,
+        32,
+        20
+    ),
+    black2Mat,
+    [0,1.02,-0.35],
+    [1.25,0.48,1.25]
+);
 
-    const geometry =
-    new THREE.BoxGeometry(
-        1.65,
-        0.14,
-        0.58
+
+/* =========================================================
+   ENGINE INTAKES
+========================================================= */
+
+function createIntake(side){
+
+    const intake =
+    addMesh(
+        new THREE.CylinderGeometry(
+            0.25,
+            0.32,
+            0.55,
+            24
+        ),
+        blackMat,
+        [side*1.05,1.15,-0.15],
+        [1,1,1],
+        [0,0,Math.PI/2]
     );
 
-    const wing =
-    new THREE.Mesh(
-        geometry,
-        blueMaterial
-    );
-
-    wing.position.set(
-        side * 0.78,
-        0.12,
-        1.78
-    );
-
-    wing.rotation.z =
-        side === 1
-        ? -0.12
-        : 0.12;
-
-    wing.castShadow =
-    true;
-
-    aircraft.add(
-        wing
+    addMesh(
+        new THREE.CylinderGeometry(
+            0.18,
+            0.18,
+            0.04,
+            24
+        ),
+        redGlowMat,
+        [side*1.34,1.15,-0.15],
+        [1,1,1],
+        [0,0,Math.PI/2]
     );
 }
 
-createTailWing(1);
-createTailWing(-1);
+createIntake(1);
+createIntake(-1);
 
 
 /* =========================================================
-   VERTICAL TAIL
+   RED SIDE LIGHTNING STRIP
 ========================================================= */
+
+function createRedStrip(side){
+
+    addMesh(
+        new THREE.BoxGeometry(
+            0.055,
+            0.055,
+            3.8
+        ),
+        redGlowMat,
+        [side*1.36,-0.05,-0.05],
+        [1,1,1],
+        [0,0,-0.08]
+    );
+
+}
+
+createRedStrip(1);
+createRedStrip(-1);
+
+
+/* =========================================================
+   LONG TAIL BOOM
+========================================================= */
+
+addMesh(
+    new THREE.CylinderGeometry(
+        0.30,
+        0.55,
+        5.4,
+        24
+    ),
+    blackMat,
+    [0,0,-4.15],
+    [1,1,1],
+    [Math.PI/2,0,0]
+);
+
+
+/* =========================================================
+   RED TAIL STRIP
+========================================================= */
+
+addMesh(
+    new THREE.BoxGeometry(
+        0.08,
+        0.08,
+        4.9
+    ),
+    redGlowMat,
+    [0,-0.10,-4.15]
+);
+
+
+/* =========================================================
+   VERTICAL TAIL FIN
+========================================================= */
+
+const tailFin =
+new THREE.Shape();
+
+tailFin.moveTo(0,0);
+tailFin.lineTo(0.1,2.0);
+tailFin.lineTo(0.55,2.45);
+tailFin.lineTo(0.7,0);
+tailFin.closePath();
+
 
 const tailGeometry =
-new THREE.BoxGeometry(
-    0.20,
-    1.35,
-    0.82
+new THREE.ExtrudeGeometry(
+    tailFin,
+    {
+        depth:0.22,
+        bevelEnabled:true,
+        bevelSize:0.08,
+        bevelThickness:0.05,
+        bevelSegments:3
+    }
 );
 
-const tail =
-new THREE.Mesh(
+addMesh(
     tailGeometry,
-    bodyMaterial
-);
-
-tail.position.set(
-    0,
-    0.62,
-    1.58
-);
-
-tail.rotation.z =
--0.12;
-
-tail.castShadow =
-true;
-
-aircraft.add(
-    tail
+    blackMat,
+    [-0.35,0,-6.55],
+    [1,1,1],
+    [0,0,0]
 );
 
 
-/* =========================================================
-   TAIL GOLD STRIPE
-========================================================= */
+/* red tail fin panel */
 
-const stripeGeometry =
-new THREE.BoxGeometry(
-    0.21,
-    0.9,
-    0.07
-);
-
-const stripe =
-new THREE.Mesh(
-    stripeGeometry,
-    goldMaterial
-);
-
-stripe.position.set(
-    0,
-    0.67,
-    1.15
-);
-
-aircraft.add(
-    stripe
-);
-
-
-/* =========================================================
-   ENGINE PODS
-========================================================= */
-
-function createEngine(side){
-
-    const geometry =
-    new THREE.CylinderGeometry(
-        0.34,
-        0.44,
-        1.3,
-        28
-    );
-
-    const engine =
-    new THREE.Mesh(
-        geometry,
-        darkMaterial
-    );
-
-    engine.rotation.z =
-    Math.PI / 2;
-
-    engine.position.set(
-        side * 1.05,
-        -0.18,
-        -0.52
-    );
-
-    engine.castShadow =
-    true;
-
-    aircraft.add(
-        engine
-    );
-
-
-    /* Engine glow */
-
-    const glowGeometry =
-    new THREE.CylinderGeometry(
-        0.23,
-        0.23,
+addMesh(
+    new THREE.BoxGeometry(
         0.08,
-        28
-    );
-
-    const glowMaterial =
-    new THREE.MeshBasicMaterial({
-        color:0x00c8ff
-    });
-
-    const engineGlow =
-    new THREE.Mesh(
-        glowGeometry,
-        glowMaterial
-    );
-
-    engineGlow.rotation.z =
-    Math.PI / 2;
-
-    engineGlow.position.set(
-        side * 1.05,
-        -0.18,
-        -1.18
-    );
-
-    aircraft.add(
-        engineGlow
-    );
-}
-
-createEngine(1);
-createEngine(-1);
+        1.25,
+        0.25
+    ),
+    redMat,
+    [0.37,0.95,-6.55],
+    [1,1,1]
+);
 
 
 /* =========================================================
-   FRONT PROPELLER
+   TAIL ROTOR
 ========================================================= */
 
-const propeller =
+const tailRotor =
 new THREE.Group();
 
-propeller.position.set(
-    0,
-    0,
-    -2.92
+tailRotor.position.set(
+    0.42,
+    0.05,
+    -6.82
 );
 
-aircraft.add(
-    propeller
-);
+helicopter.add(tailRotor);
 
 
-/* Hub */
+/* tail hub */
 
-const hubGeometry =
-new THREE.SphereGeometry(
-    0.28,
-    24,
-    24
-);
-
-const hub =
-new THREE.Mesh(
-    hubGeometry,
-    goldMaterial
-);
-
-propeller.add(
-    hub
+tailRotor.add(
+    new THREE.Mesh(
+        new THREE.SphereGeometry(
+            0.22,
+            24,
+            24
+        ),
+        redMat
+    )
 );
 
 
-/* Blades */
+/* tail rotor blades */
 
-for(let i=0;i<4;i++){
-
-    const bladeGeometry =
-    new THREE.BoxGeometry(
-        0.16,
-        1.65,
-        0.08
-    );
+for(let i=0;i<6;i++){
 
     const blade =
     new THREE.Mesh(
-        bladeGeometry,
-        darkMaterial
+        new THREE.BoxGeometry(
+            0.10,
+            1.35,
+            0.07
+        ),
+        black2Mat
     );
 
     blade.position.y =
-    0.82;
+    0.65;
 
     blade.rotation.z =
+    i * Math.PI / 3;
+
+    tailRotor.add(blade);
+}
+
+
+/* tail red ring */
+
+const tailRing =
+new THREE.Mesh(
+    new THREE.TorusGeometry(
+        0.78,
+        0.045,
+        8,
+        40
+    ),
+    redGlowMat
+);
+
+tailRotor.add(tailRing);
+
+
+/* =========================================================
+   MAIN ROTOR ASSEMBLY
+========================================================= */
+
+const mainRotor =
+new THREE.Group();
+
+mainRotor.position.set(
+    0,
+    1.55,
+    -0.25
+);
+
+helicopter.add(mainRotor);
+
+
+/* rotor mast */
+
+mainRotor.add(
+    new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            0.12,
+            0.12,
+            1.0,
+            20
+        ),
+        black2Mat
+    )
+);
+
+
+/* rotor hub */
+
+const rotorHub =
+new THREE.Mesh(
+    new THREE.CylinderGeometry(
+        0.28,
+        0.28,
+        0.18,
+        24
+    ),
+    redMat
+);
+
+rotorHub.position.y =
+0.5;
+
+mainRotor.add(rotorHub);
+
+
+/* rotor blades */
+
+for(let i=0;i<4;i++){
+
+    const blade =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            0.20,
+            0.08,
+            7.0
+        ),
+        black2Mat
+    );
+
+    blade.position.y =
+    0.53;
+
+    blade.rotation.y =
     i * Math.PI / 2;
 
-    blade.castShadow =
-    true;
+    blade.castShadow = true;
 
-    propeller.add(
-        blade
+    mainRotor.add(blade);
+
+
+    /* red blade accent */
+
+    const redBlade =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            0.05,
+            0.025,
+            6.6
+        ),
+        redGlowMat
     );
+
+    redBlade.position.y =
+    0.58;
+
+    redBlade.rotation.y =
+    i * Math.PI / 2;
+
+    mainRotor.add(redBlade);
 }
 
 
 /* =========================================================
-   FRONT LIGHT
+   LANDING SKIDS
 ========================================================= */
 
-const frontLightGeometry =
-new THREE.SphereGeometry(
-    0.12,
-    16,
-    16
+function createSkid(side){
+
+    /* main skid */
+
+    const skid =
+    new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            0.075,
+            0.075,
+            4.4,
+            16
+        ),
+        black2Mat
+    );
+
+    skid.rotation.z =
+    Math.PI/2;
+
+    skid.position.set(
+        side*0.85,
+        -1.25,
+        0.15
+    );
+
+    skid.castShadow = true;
+
+    helicopter.add(skid);
+
+
+    /* front curved support */
+
+    const frontSupport =
+    new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            0.075,
+            0.075,
+            1.15,
+            16
+        ),
+        black2Mat
+    );
+
+    frontSupport.position.set(
+        side*0.85,
+        -0.72,
+        1.05
+    );
+
+    frontSupport.rotation.z =
+    side * 0.28;
+
+    helicopter.add(frontSupport);
+
+
+    /* rear support */
+
+    const rearSupport =
+    new THREE.Mesh(
+        new THREE.CylinderGeometry(
+            0.075,
+            0.075,
+            1.05,
+            16
+        ),
+        black2Mat
+    );
+
+    rearSupport.position.set(
+        side*0.85,
+        -0.72,
+        -1.0
+    );
+
+    rearSupport.rotation.z =
+    -side * 0.28;
+
+    helicopter.add(rearSupport);
+
+
+    /* red skid light */
+
+    const skidLight =
+    new THREE.Mesh(
+        new THREE.BoxGeometry(
+            0.055,
+            0.055,
+            3.1
+        ),
+        redGlowMat
+    );
+
+    skidLight.position.set(
+        side*0.85,
+        -1.34,
+        0.15
+    );
+
+    helicopter.add(skidLight);
+}
+
+createSkid(1);
+createSkid(-1);
+
+
+/* =========================================================
+   FRONT HEADLIGHT
+========================================================= */
+
+addMesh(
+    new THREE.SphereGeometry(
+        0.13,
+        20,
+        20
+    ),
+    redGlowMat,
+    [0,-0.08,2.95]
 );
 
-const frontLight =
+
+/* =========================================================
+   REAR ENGINE GLOW
+========================================================= */
+
+function createEngineGlow(side){
+
+    addMesh(
+        new THREE.CylinderGeometry(
+            0.24,
+            0.24,
+            0.12,
+            24
+        ),
+        redGlowMat,
+        [side*1.05,-0.35,-1.85],
+        [1,1,1],
+        [Math.PI/2,0,0]
+    );
+}
+
+createEngineGlow(1);
+createEngineGlow(-1);
+
+
+/* =========================================================
+   GROUND
+========================================================= */
+
+const ground =
 new THREE.Mesh(
-
-    frontLightGeometry,
-
+    new THREE.CircleGeometry(
+        9,
+        64
+    ),
     new THREE.MeshBasicMaterial({
-        color:0x00eaff
+        color:0x020611,
+        transparent:true,
+        opacity:0.7
     })
-
 );
 
-frontLight.position.set(
-    0,
-    -0.12,
-    -3.02
-);
+ground.rotation.x =
+-Math.PI/2;
 
-aircraft.add(
-    frontLight
-);
+ground.position.y =
+-1.5;
+
+scene.add(ground);
 
 
 /* =========================================================
-   FLY X LOGO
+   RED GLOW UNDER HELICOPTER
 ========================================================= */
 
-const logoCanvas =
-document.createElement("canvas");
-
-logoCanvas.width =
-512;
-
-logoCanvas.height =
-128;
-
-const ctx =
-logoCanvas.getContext("2d");
-
-ctx.clearRect(
-    0,
-    0,
-    512,
-    128
-);
-
-ctx.font =
-"bold 82px Arial";
-
-ctx.textAlign =
-"center";
-
-ctx.textBaseline =
-"middle";
-
-ctx.fillStyle =
-"#ffffff";
-
-ctx.fillText(
-    "FLY X",
-    256,
-    64
-);
-
-
-const logoTexture =
-new THREE.CanvasTexture(
-    logoCanvas
-);
-
-logoTexture.colorSpace =
-THREE.SRGBColorSpace;
-
-
-const logoMaterial =
-new THREE.MeshBasicMaterial({
-
-    map:logoTexture,
-
-    transparent:true,
-
-    depthWrite:false
-
-});
-
-
-const logoGeometry =
-new THREE.PlaneGeometry(
-    1.8,
-    0.45
-);
-
-
-const logo =
+const glow =
 new THREE.Mesh(
-    logoGeometry,
-    logoMaterial
+    new THREE.CircleGeometry(
+        4.5,
+        64
+    ),
+    new THREE.MeshBasicMaterial({
+        color:0xff0000,
+        transparent:true,
+        opacity:0.055,
+        side:THREE.DoubleSide
+    })
 );
 
-logo.position.set(
-    0,
-    0.03,
-    -1.04
-);
+glow.rotation.x =
+-Math.PI/2;
 
-logo.rotation.y =
-Math.PI;
+glow.position.y =
+-1.47;
 
-aircraft.add(
-    logo
-);
+scene.add(glow);
 
 
 /* =========================================================
-   BLUE GLOW UNDER AIRCRAFT
+   START POSITION
 ========================================================= */
 
-const groundGlowGeometry =
-new THREE.CircleGeometry(
-    3.6,
-    64
-);
-
-const groundGlowMaterial =
-new THREE.MeshBasicMaterial({
-
-    color:0x0077ff,
-
-    transparent:true,
-
-    opacity:0.12,
-
-    side:THREE.DoubleSide
-
-});
-
-const groundGlow =
-new THREE.Mesh(
-    groundGlowGeometry,
-    groundGlowMaterial
-);
-
-groundGlow.rotation.x =
--Math.PI / 2;
-
-groundGlow.position.y =
--1.35;
-
-scene.add(
-    groundGlow
-);
-
-
-/* =========================================================
-   UNDER LIGHT
-========================================================= */
-
-const underLight =
-new THREE.PointLight(
-    0x0077ff,
-    12,
-    10
-);
-
-underLight.position.set(
-    0,
-    -1.2,
-    0
-);
-
-scene.add(
-    underLight
-);
-
-
-/* =========================================================
-   AIRCRAFT START POSITION
-========================================================= */
-
-aircraft.position.set(
+helicopter.position.set(
     0,
     0,
     0
 );
+
 
 /*
-   IMPORTANT:
-   Nose camera ki taraf rahega.
+   Camera looks at the helicopter.
+   Nose is toward +Z.
 */
 
-aircraft.rotation.set(
+controls.target.set(
     0,
-    Math.PI,
+    0,
+    0
+);
+
+camera.lookAt(
+    0,
+    0,
     0
 );
 
@@ -1173,45 +1054,67 @@ aircraft.rotation.set(
 const clock =
 new THREE.Clock();
 
-
 function animate(){
 
     requestAnimationFrame(
         animate
     );
 
-
     const time =
     clock.getElapsedTime();
 
 
-    /* Propeller rotation */
+    /* Main rotor */
 
-    propeller.rotation.z +=
-    0.5;
-
-
-    /* Aircraft floating */
-
-    aircraft.position.y =
-        Math.sin(time * 1.5) * 0.08;
+    mainRotor.rotation.y +=
+    0.055;
 
 
-    /* Glow breathing */
+    /* Tail rotor */
 
-    groundGlow.material.opacity =
-        0.10 +
-        Math.sin(time * 2) * 0.025;
+    tailRotor.rotation.z +=
+    0.12;
+
+
+    /* subtle floating */
+
+    helicopter.position.y =
+    Math.sin(time * 1.5) * 0.06;
+
+
+    /* red glow pulse */
+
+    redLight.intensity =
+    26 +
+    Math.sin(time * 4) * 5;
+
+
+    glow.material.opacity =
+    0.045 +
+    Math.sin(time * 2) * 0.012;
 
 
     controls.update();
-
 
     renderer.render(
         scene,
         camera
     );
 }
+
+
+/* =========================================================
+   REMOVE LOADING
+========================================================= */
+
+document.getElementById(
+    "loading"
+).style.display = "none";
+
+
+/* =========================================================
+   START
+========================================================= */
 
 animate();
 
@@ -1220,46 +1123,27 @@ animate();
    RESPONSIVE
 ========================================================= */
 
-function resize(){
-
-    const width =
-    window.innerWidth;
-
-    const height =
-    window.innerHeight;
-
-
-    camera.aspect =
-    width / height;
-
-    camera.updateProjectionMatrix();
-
-
-    renderer.setSize(
-        width,
-        height
-    );
-}
-
 window.addEventListener(
     "resize",
-    resize
+    () => {
+
+        const width =
+        window.innerWidth;
+
+        const height =
+        window.innerHeight;
+
+        camera.aspect =
+        width / height;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            width,
+            height
+        );
+    }
 );
-
-
-/* =========================================================
-   WEBGL ERROR
-========================================================= */
-
-if(!renderer.getContext()){
-
-    errorBox.style.display =
-    "block";
-
-    errorBox.innerText =
-    "3D graphics is not supported on this device/browser.";
-
-}
 
 </script>
 
